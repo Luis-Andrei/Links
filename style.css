@@ -1,10 +1,10 @@
 /* Reset e estilos base */
 :root {
-    --primary-color: #ffffff;
+    --primary-color: #fff;
     --secondary-color: #1e1e2f;
-    --accent-color: #00ff00;
-    --text-color: #ffffff;
-    --link-hover: #00ff00;
+    --accent-color: #0f0;
+    --text-color: #fff;
+    --link-hover: #0f0;
     --card-bg: rgba(30, 30, 47, 0.8);
     --card-border: rgba(255, 255, 255, 0.1);
     --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -51,92 +51,76 @@ header {
     box-shadow: 0 0 20px var(--terminal-shadow);
 }
 
+.profile {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
 .profile h1 {
     font-size: 1.8rem;
-    margin: 0.5rem 0;
+    margin-bottom: 1rem;
     color: var(--accent-color);
-    text-shadow: 0 0 5px #33ff33;
-    animation: blinkText 1s infinite alternate;
-    font-weight: 700;
-    letter-spacing: 1px;
+    text-shadow: 0 0 10px var(--accent-color);
 }
 
 .profile p {
     font-size: 1rem;
-    opacity: 1;
-    line-height: 1.6;
-    margin: 1rem 0;
-    text-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
+    opacity: 0.9;
 }
 
 /* Container de links */
 .links {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    width: 100%;
-    max-width: 400px;
-    margin: 0 auto;
+    gap: 1rem;
 }
 
 /* Estilos dos cards de link */
 .link-card {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    text-align: left;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    border: 2px solid #0f0 !important;
-    border-radius: 8px;
-    transition: all 0.3s ease;
+    align-items: center;
+    padding: 1rem;
+    background: var(--card-bg);
+    border-radius: 0.5rem;
     text-decoration: none;
     color: var(--text-color);
-    font-family: var(--font-code);
-    background: transparent;
-    box-shadow: 0 0 5px #0f0, 0 0 15px #0f0, 0 0 30px #0f0;
-    position: relative;
-    overflow: hidden;
+    transition: transform 0.3s ease;
+    border: 1px solid var(--card-border);
 }
 
 .link-card:hover {
-    transform: scale(1.03);
-    box-shadow: 0 0 10px #0f0, 0 0 25px #0f0, 0 0 40px #0f0;
+    transform: translateY(-2px);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 20px var(--accent-color);
 }
 
 .link-card i {
-    display: none;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+    color: var(--accent-color);
 }
 
 .link-card span {
-    font-weight: 700;
-    font-size: 0.95rem;
-    margin-bottom: 0.1rem;
-    text-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
+    font-weight: 600;
+    margin-bottom: 0.25rem;
 }
 
 .link-card p {
-    font-size: 0.8rem;
-    opacity: 1;
-    text-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
+    font-size: 0.9rem;
+    opacity: 0.8;
 }
-
-/* Cores específicas para cada rede social */
-.link-card.instagram:hover { background: rgba(225, 48, 108, 0.2); }
-.link-card.twitter:hover   { background: rgba(29, 155, 240, 0.2); }
-.link-card.linkedin:hover  { background: rgba(10, 102, 194, 0.2); }
-.link-card.github:hover    { background: rgba(255, 255, 255, 0.1); }
 
 /* Estilos do rodapé */
 footer {
     text-align: center;
-    padding: 2rem;
-    margin-top: 3rem;
-    border-top: 1px solid var(--terminal-border);
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--card-border);
 }
 
 footer p {
-    color: var(--terminal-text);
+    font-size: 0.9rem;
+    opacity: 0.8;
 }
 
 /* Botão de alternar tema */
@@ -223,9 +207,10 @@ canvas {
 }
 
 /* Animações */
-@keyframes blinkText {
-    from { opacity: 1; }
-    to { opacity: 0.8; }
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
 }
 
 @keyframes slideIn {
@@ -297,7 +282,7 @@ canvas {
     }
     
     .link-card {
-        padding: 1rem;
+        padding: 0.75rem;
     }
 }
 
