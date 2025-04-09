@@ -1,233 +1,458 @@
-// Configurações iniciais
-document.addEventListener('DOMContentLoaded', function () {
-    // Inicializa todas as functionalities
-    initializeDarkMode();
-    initializeAnimations();
-    initializeLinkCards();
-    initializeVisitCounter();
-    initializeDarkModeToggle();
-    initializeTypewriterEffect();
-    initializeSmoothScroll();
-    initializeParallax();
-    initializeNotifications();
-    initializeAnalytics();
-});
-
-// Função para inicializar o modo escuro
-function initializeDarkMode() {
-    const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const savedMode = localStorage.getItem('darkMode');
-
-    if (savedMode === 'true' || (savedMode === null && prefersDarkMode)) {
-        document.body.classList.add('dark-mode');
+// Animação das bolas de futebol
+class Ball {
+    constructor(x, y, radius) {
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+        // Velocidade inicial entre 4 e 10
+        const initialSpeed = 4 + Math.random() * 6;
+        const angle = Math.random() * Math.PI * 2;
+        this.dx = Math.cos(angle) * initialSpeed;
+        this.dy = Math.sin(angle) * initialSpeed;
+        this.mass = radius;
+        this.isDragging = false;
+        this.image = new Image();
+        this.image.src = 'https://cdn-icons-png.flaticon.com/512/53/53283.png';
+        this.rotation = 0;
+        this.rotationSpeed = (Math.random() - 0.5) * 0.3;
+        this.lastX = x;
+        this.lastY = y;
+        this.minSpeed = 4; // Velocidade mínima
+        this.maxSpeed = 10; // Velocidade máxima
     }
 
-    // Monitora mudanças na preferência do sistema
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-        if (localStorage.getItem('darkMode') === null) {
-            document.body.classList.toggle('dark-mode', e.matches);
+    draw(ctx) {
+        if (this.image.complete) {
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.rotation);
+            ctx.beginPath();
+            ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.clip();
+            
+            ctx.drawImage(
+                this.image,
+                -this.radius,
+                -this.radius,
+                this.radius * 2,
+                this.radius * 2
+            );
+            ctx.restore();
+        } else {
+            // Desenhar bola branca quando a imagem não estiver carregada
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff'; // Cor branca
+            ctx.fill();
+            ctx.strokeStyle = '#000000'; // Borda preta
+            ctx.lineWidth = 2;
+            ctx.stroke();
         }
-    });
-}
+    }
 
-// Função para inicializar as animações
-function initializeAnimations() {
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
+    update(balls, canvas) {
+        // Atualizar rotação
+        this.rotation += this.rotationSpeed;
+
+        // Mover a bola independentemente do arrasto
+        if (!this.isDragging) {
+            this.x += this.dx;
+            this.y += this.dy;
+        }
+
+        // Colisão com as paredes
+        if (this.x + this.radius > canvas.width) {
+            this.x = canvas.width - this.radius;
+            this.dx = -Math.abs(this.dx) * 0.98;
+            this.rotationSpeed = -this.rotationSpeed;
+        }
+        if (this.x - this.radius < 0) {
+            this.x = this.radius;
+            this.dx = Math.abs(this.dx) * 0.98;
+            this.rotationSpeed = -this.rotationSpeed;
+        }
+        if (this.y + this.radius > canvas.height) {
+            this.y = canvas.height - this.radius;
+            this.dy = -Math.abs(this.dy) * 0.98;
+            this.rotationSpeed = -this.rotationSpeed;
+        }
+        if (this.y - this.radius < 0) {
+            this.y = this.radius;
+            this.dy = Math.abs(this.dy) * 0.98;
+            this.rotationSpeed = -this.rotationSpeed;
+        }
+
+        // Colisão com outras bolas
+        balls.forEach(ball => {
+            if (ball === this) return;
+
+            const dx = ball.x - this.x;
+            const dy = ball.y - this.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < this.radius + ball.radius) {
+                // Calcular ângulo de colisão
+                const angle = Math.atan2(dy, dx);
+                const sin = Math.sin(angle);
+                const cos = Math.cos(angle);
+
+                // Separar as bolas
+                const overlap = (this.radius + ball.radius - distance) / 2;
+                this.x -= overlap * cos;
+                this.y -= overlap * sin;
+                ball.x += overlap * cos;
+                ball.y += overlap * sin;
+
+                // Se não estiver arrastando, calcular colisão
+                if (!this.isDragging && !ball.isDragging) {
+                    // Rotacionar velocidades
+                    const vx1 = this.dx * cos + this.dy * sin;
+                    const vy1 = this.dy * cos - this.dx * sin;
+                    const vx2 = ball.dx * cos + ball.dy * sin;
+                    const vy2 = ball.dy * cos - ball.dx * sin;
+
+                    // Calcular velocidades finais com elasticidade aumentada
+                    const elasticity = 0.98;
+                    const finalVx1 = ((this.mass - ball.mass) * vx1 + 2 * ball.mass * vx2) / (this.mass + ball.mass) * elasticity;
+                    const finalVx2 = ((ball.mass - this.mass) * vx2 + 2 * this.mass * vx1) / (this.mass + ball.mass) * elasticity;
+
+                    // Rotacionar de volta
+                    this.dx = finalVx1 * cos - vy1 * sin;
+                    this.dy = vy1 * cos + finalVx1 * sin;
+                    ball.dx = finalVx2 * cos - vy2 * sin;
+                    ball.dy = vy2 * cos + finalVx2 * sin;
+
+                    // Atualizar rotação baseado na colisão
+                    this.rotationSpeed = (Math.random() - 0.5) * 0.4;
+                    ball.rotationSpeed = (Math.random() - 0.5) * 0.4;
+                }
             }
         });
-    }, { threshold: 0.1 });
 
-    document.querySelectorAll('.fade-in').forEach(element => {
-        element.style.opacity = '0';
-        element.style.transform = 'translateY(20px)';
-        observer.observe(element);
-    });
+        // Aplicar fricção mínima e manter velocidade entre mínimo e máximo
+        if (!this.isDragging) {
+            this.dx *= 0.999;
+            this.dy *= 0.999;
+
+            // Calcular velocidade atual
+            const currentSpeed = Math.sqrt(this.dx * this.dx + this.dy * this.dy);
+            
+            // Ajustar velocidade se estiver fora dos limites
+            if (currentSpeed < this.minSpeed || currentSpeed > this.maxSpeed) {
+                const angle = Math.atan2(this.dy, this.dx);
+                const targetSpeed = currentSpeed < this.minSpeed ? this.minSpeed : this.maxSpeed;
+                this.dx = Math.cos(angle) * targetSpeed;
+                this.dy = Math.sin(angle) * targetSpeed;
+            }
+        }
+
+        // Atualizar posição anterior
+        this.lastX = this.x;
+        this.lastY = this.y;
+    }
 }
 
-// Função para inicializar os cards de links
-function initializeLinkCards() {
-    document.querySelectorAll('.link-card').forEach(card => {
-        // Efeito de clique
-        card.addEventListener('click', function (e) {
-            e.preventDefault();
-            const href = this.getAttribute('href');
+// Inicializar bolas de futebol
+function initSoccerBalls() {
+    const canvas = document.createElement('canvas');
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.pointerEvents = 'auto';
+    canvas.style.zIndex = '0';
+    canvas.style.userSelect = 'none'; // Evitar seleção de texto
+    canvas.style.webkitUserSelect = 'none'; // Para navegadores WebKit
+    canvas.style.msUserSelect = 'none'; // Para Internet Explorer
+    document.body.appendChild(canvas);
 
-            // Animação de clique
-            this.classList.add('clicked');
-            setTimeout(() => this.classList.remove('clicked'), 300);
+    const ctx = canvas.getContext('2d');
+    const balls = [];
+    let isDragging = false;
+    let draggedBall = null;
 
-            // Efeito ripple
-            const ripple = document.createElement('div');
-            ripple.className = 'ripple';
-            ripple.style.left = e.clientX + 'px';
-            ripple.style.top = e.clientY + 'px';
-            this.appendChild(ripple);
-            setTimeout(() => ripple.remove(), 600);
+    // Ajustar tamanho do canvas
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
 
-            // Confetti
-            createConfetti();
+    // Criar 4 bolas
+    for (let i = 0; i < 4; i++) {
+        const radius = 30;
+        const x = Math.random() * (canvas.width - radius * 2) + radius;
+        const y = Math.random() * (canvas.height - radius * 2) + radius;
+        balls.push(new Ball(x, y, radius));
+    }
 
-            // Notificação
-            showNotification('Redirecionando...', 'info');
+    // Eventos do mouse
+    canvas.addEventListener('mousedown', (e) => {
+        e.preventDefault(); // Prevenir comportamento padrão
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
 
-            // Redireciona após a animação
+        balls.forEach(ball => {
+            const dx = x - ball.x;
+            const dy = y - ball.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < ball.radius) {
+                isDragging = true;
+                draggedBall = ball;
+                ball.isDragging = true;
+                ball.dragStartX = x;
+                ball.dragStartY = y;
+                ball.dragStartTime = Date.now();
+            }
+        });
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+        if (isDragging && draggedBall) {
+            e.preventDefault(); // Prevenir comportamento padrão
+            const rect = canvas.getBoundingClientRect();
+            draggedBall.x = e.clientX - rect.left;
+            draggedBall.y = e.clientY - rect.top;
+        }
+    });
+
+    canvas.addEventListener('mouseup', (e) => {
+        if (draggedBall) {
+            const rect = canvas.getBoundingClientRect();
+            const endX = e.clientX - rect.left;
+            const endY = e.clientY - rect.top;
+            const dragTime = Date.now() - draggedBall.dragStartTime;
+            
+            // Calcular velocidade baseada no movimento do arrasto
+            const dragDistance = Math.sqrt(
+                Math.pow(endX - draggedBall.dragStartX, 2) + 
+                Math.pow(endY - draggedBall.dragStartY, 2)
+            );
+            
+            // Velocidade máxima para evitar lançamentos muito fortes
+            const maxSpeed = 15;
+            const speed = Math.min(dragDistance / (dragTime / 100), maxSpeed);
+            
+            // Calcular direção do lançamento
+            const angle = Math.atan2(
+                endY - draggedBall.dragStartY,
+                endX - draggedBall.dragStartX
+            );
+            
+            // Aplicar velocidade
+            draggedBall.dx = Math.cos(angle) * speed;
+            draggedBall.dy = Math.sin(angle) * speed;
+            
+            draggedBall.isDragging = false;
+        }
+        isDragging = false;
+        draggedBall = null;
+    });
+
+    // Animação
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        balls.forEach(ball => {
+            ball.update(balls, canvas);
+            ball.draw(ctx);
+        });
+
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+}
+
+// Mostrar notificação de atualização
+function showUpdateNotification() {
+    const notification = document.createElement('div');
+    notification.className = 'update-notification';
+    notification.innerHTML = `
+        <p>Nova atualização disponível!</p>
+        <button onclick="this.parentElement.classList.add('fade-out')">Fechar</button>
+    `;
+    document.body.appendChild(notification);
+    
+    // Remover notificação após 10 segundos
+    setTimeout(() => {
+        notification.classList.add('fade-out');
+        setTimeout(() => notification.remove(), 500);
+    }, 5000);
+}
+
+// Efeito de máquina de escrever
+function typeWriter(element, text, speed = 100) {
+    let i = 0;
+    element.innerHTML = ''; // Limpar o conteúdo antes de começar
+    function type() {
+        if (i < text.length) {
+            element.innerHTML += text.charAt(i);
+            i++;
+            setTimeout(type, speed);
+        }
+    }
+    type();
+}
+
+// Efeito Matrix Rain
+class MatrixRain {
+    constructor() {
+        this.canvas = document.createElement('canvas');
+        this.canvas.style.position = 'fixed';
+        this.canvas.style.top = '0';
+        this.canvas.style.left = '0';
+        this.canvas.style.width = '100%';
+        this.canvas.style.height = '100%';
+        this.canvas.style.pointerEvents = 'none';
+        this.canvas.style.zIndex = '-1';
+        document.body.appendChild(this.canvas);
+
+        this.ctx = this.canvas.getContext('2d');
+        this.characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        this.fontSize = 14;
+        this.columns = 0;
+        this.drops = [];
+        
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+    }
+
+    resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        this.columns = Math.floor(this.canvas.width / this.fontSize);
+        this.drops = Array(this.columns).fill(1);
+    }
+
+    draw() {
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.fillStyle = '#0F0';
+        this.ctx.font = this.fontSize + 'px monospace';
+
+        for (let i = 0; i < this.drops.length; i++) {
+            const text = this.characters.charAt(Math.floor(Math.random() * this.characters.length));
+            const x = i * this.fontSize;
+            const y = this.drops[i] * this.fontSize;
+
+            this.ctx.fillStyle = '#0F0';
+            this.ctx.fillText(text, x, y);
+
+            if (y > this.canvas.height && Math.random() > 0.975) {
+                this.drops[i] = 0;
+            }
+            this.drops[i]++;
+        }
+    }
+
+    animate() {
+        this.draw();
+        requestAnimationFrame(() => this.animate());
+    }
+}
+
+// Inicializar tudo quando o DOM estiver carregado
+document.addEventListener("DOMContentLoaded", () => {
+    // Inicializar Matrix Rain
+    const matrix = new MatrixRain();
+    matrix.animate();
+
+    // Título e descrição
+    const title = document.querySelector(".profile h1");
+    const description = document.querySelector(".profile p");
+    
+    if (title) {
+        typeWriter(title, "@Luis Andrei", 120);
+    }
+    
+    if (description) {
+        typeWriter(description, "Olá! Bem-vindo à minha página de links\nEstudando Back-end / Front-end com Python, JavaScript e Go.", 50);
+    }
+
+    // Links
+    const links = document.querySelectorAll(".link-card");
+    links.forEach((link, index) => {
+        const span = link.querySelector("span");
+        const p = link.querySelector("p");
+        
+        if (span) {
             setTimeout(() => {
-                window.open(href, '_blank');
+                typeWriter(span, span.textContent, 30);
+            }, 1000 + (index * 200));
+        }
+        
+        if (p) {
+            setTimeout(() => {
+                typeWriter(p, p.textContent, 20);
+            }, 1200 + (index * 200));
+        }
+    });
+
+    // Rodapé
+    const footer = document.querySelector("footer p");
+    if (footer) {
+        setTimeout(() => {
+            typeWriter(footer, footer.textContent, 30);
+        }, 2000);
+    }
+
+    // Confetes ao clicar nos links
+    document.querySelectorAll('.link-card').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const url = link.getAttribute('href');
+            
+            // Criar confetes
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+
+            // Redirecionar após animação
+            setTimeout(() => {
+                window.open(url, '_blank');
             }, 500);
         });
-
-        // Efeito de hover
-        card.addEventListener('mouseenter', function () {
-            this.style.transform = 'scale(1.05)';
-        });
-
-        card.addEventListener('mouseleave', function () {
-            this.style.transform = 'scale(1)';
-        });
     });
-}
 
-// Função para inicializar o contador de visitas
-function initializeVisitCounter() {
-    let visits = localStorage.getItem('visits');
-    if (!visits) {
-        visits = 1;
-    } else {
-        visits = parseInt(visits) + 1;
-    }
-    localStorage.setItem('visits', visits);
-
-    // Mostra notificação na primeira visita
-    if (visits === 1) {
-        showNotification('Bem-vindo! Esta é sua primeira visita.', 'success');
-    }
-}
-
-// Função para inicializar o botão de modo escuro
-function initializeDarkModeToggle() {
-    const darkModeToggle = document.createElement('button');
-    darkModeToggle.className = 'dark-mode-toggle';
-    darkModeToggle.innerHTML = document.body.classList.contains('dark-mode') ?
-        '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-    document.body.appendChild(darkModeToggle);
-
-    darkModeToggle.addEventListener('click', function () {
-        document.body.classList.toggle('dark-mode');
-        this.innerHTML = document.body.classList.contains('dark-mode') ?
-            '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-        localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-
-        showNotification(
-            document.body.classList.contains('dark-mode') ?
-                'Modo escuro ativado' : 'Modo claro ativado',
-            'info'
-        );
+    // Efeito de pulso nos ícones
+    document.querySelectorAll('.link-card i').forEach(icon => {
+        icon.style.animation = 'pulse 2s infinite';
     });
-}
 
-// Função para efeito de máquina de escrever
-function initializeTypewriterEffect() {
-    const profileText = document.querySelector('.profile p');
-    // Check if profileText exists before trying to access textContent
-    if (!profileText) return;
-    const text = profileText.textContent;
-    profileText.textContent = '';
+    // Adicionar tags de código flutuantes
+    const createFloatingCode = () => {
+        const code = document.createElement('div');
+        code.className = 'code-float';
+        code.textContent = '<code>const vida = "desenvolvimento";</code>';
+        document.body.appendChild(code);
 
-    let i = 0;
-    const typeWriter = () => {
-        if (i < text.length) {
-            profileText.textContent += text.charAt(i);
-            i++;
-            setTimeout(typeWriter, 100);
+        setTimeout(() => {
+            code.remove();
+        }, 5000);
+    };
+
+    setInterval(createFloatingCode, 3000);
+
+    // Verificar atualizações
+    const checkForUpdates = () => {
+        const lastUpdate = localStorage.getItem('lastUpdate');
+        const currentDate = new Date().toISOString().split('T')[0];
+
+        if (!lastUpdate || lastUpdate !== currentDate) {
+            showUpdateNotification();
+            localStorage.setItem('lastUpdate', currentDate);
         }
     };
-    typeWriter();
-}
 
-// Função para scroll suave
-function initializeSmoothScroll() {
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
-    });
-}
-
-// Função para efeito parallax
-function initializeParallax() {
-    window.addEventListener('scroll', function () {
-        const scrolled = window.pageYOffset;
-        document.body.style.backgroundPositionY = -(scrolled * 0.5) + 'px';
-    });
-}
-
-// Função para mostrar notificações
-function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-
-    const icon = document.createElement('i');
-    icon.className = type === 'success' ? 'fas fa-check-circle' :
-        type === 'error' ? 'fas fa-exclamation-circle' :
-            'fas fa-info-circle';
-
-    notification.appendChild(icon);
-    notification.appendChild(document.createTextNode(message));
-
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-        notification.classList.add('show');
-    }, 100);
-
-    setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
-}
-
-// Função para criar confete
-function createConfetti() {
-    const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff'];
-    const confetti = document.createElement('div');
-    confetti.className = 'confetti';
-
-    for (let i = 0; i < 50; i++) {
-        const piece = document.createElement('div');
-        piece.className = 'confetti-piece';
-        piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-        piece.style.left = Math.random() * 100 + 'vw';
-        piece.style.animationDuration = (Math.random() * 3 + 2) + 's';
-        confetti.appendChild(piece);
-    }
-
-    document.body.appendChild(confetti);
-    setTimeout(() => confetti.remove(), 3000);
-}
-
-// Função para analytics básico
-function initializeAnalytics() {
-    // Registra tempo de permanência
-    let startTime = Date.now();
-    window.addEventListener('beforeunload', () => {
-        const timeSpent = Math.floor((Date.now() - startTime) / 1000);
-        console.log(`Tempo de permanência: ${timeSpent} segundos`);
-    });
-
-    // Registra resolução da tela
-    console.log(`Resolução: ${window.innerWidth}x${window.innerHeight}`);
-
-    // Registra navegador
-    console.log(`Navegador: ${navigator.userAgent}`);
-} 
+    // Verificar atualizações ao carregar
+    checkForUpdates();
+}); 

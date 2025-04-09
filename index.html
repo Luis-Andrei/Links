@@ -4,37 +4,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carregando...</title>
+    <meta name="description" content="Página de links pessoal de Luis Andrei">
+    <meta name="keywords" content="links, portfolio, projetos, desenvolvimento">
+    <title>Luis Andrei - Links</title>
+    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="static/style.css">
 </head>
 
 <body>
     <div class="container">
-        <div class="profile fade-in">
+        <header class="profile">
             <h1></h1>
             <p></p>
-        </div>
+        </header>
 
-        <div class="links">
-            <!-- Links serão gerados aqui pelo JS -->
-        </div>
+        <nav class="links" aria-label="Links importantes">
+            <a href="https://github.com/luisandrei" class="link-card" target="_blank">
+                <i class="fab fa-github"></i>
+                <span>GitHub</span>
+                <p>Meus projetos</p>
+            </a>
+            <a href="https://linkedin.com/in/luisandrei" class="link-card" target="_blank">
+                <i class="fab fa-linkedin"></i>
+                <span>LinkedIn</span>
+                <p>Perfil profissional</p>
+            </a>
+            <a href="https://twitter.com/luisandrei" class="link-card" target="_blank">
+                <i class="fab fa-twitter"></i>
+                <span>Twitter</span>
+                <p>Meus pensamentos</p>
+            </a>
+            <a href="https://instagram.com/luisandrei" class="link-card" target="_blank">
+                <i class="fab fa-instagram"></i>
+                <span>Instagram</span>
+                <p>Meus momentos</p>
+            </a>
+        </nav>
 
         <footer>
-            <p></p>
+            <p>© 2024 Luis Andrei. Todos os direitos reservados.</p>
         </footer>
     </div>
-
-    <button class="dark-mode-toggle" aria-label="Alternar Modo Escuro">
-        <i class="fas fa-moon"></i>
-    </button>
-
-    <div class="soccer-ball">⚽</div> <!-- Bola de Futebol 1 -->
-    <div class="soccer-ball">⚽</div> <!-- Bola de Futebol 2 -->
-    <div class="soccer-ball">⚽</div> <!-- Bola de Futebol 3 -->
-    <div class="soccer-ball">⚽</div> <!-- Bola de Futebol 4 -->
-
-    <script src="static/script.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script src="script.js"></script>
 </body>
 
 </html>

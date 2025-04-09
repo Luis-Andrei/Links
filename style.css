@@ -1,3 +1,16 @@
+/* Reset e estilos base */
+:root {
+    --primary-color: #ffffff;
+    --secondary-color: #1e1e2f;
+    --accent-color: #00ff00;
+    --text-color: #ffffff;
+    --link-hover: #00ff00;
+    --card-bg: rgba(30, 30, 47, 0.8);
+    --card-border: rgba(255, 255, 255, 0.1);
+    --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --font-primary: 'Poppins', sans-serif;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -5,210 +18,295 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
-    background: linear-gradient(135deg, #0099FF 0%, #0033FF 100%);
+    font-family: var(--font-primary);
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    line-height: 1.6;
     min-height: 100vh;
-    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
 }
 
+/* Container principal */
 .container {
-    max-width: 800px;
+    width: 100%;
+    max-width: clamp(320px, 90vw, 420px);
     margin: 0 auto;
     padding: 2rem;
+    background: var(--card-bg);
+    border-radius: 1rem;
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--card-border);
+}
+
+/* Estilos do cabeçalho */
+header {
     text-align: center;
-}
-
-.profile {
-    margin-bottom: 2rem;
-}
-
-.profile-img {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid rgba(255, 255, 255, 0.8);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    margin-bottom: 1rem;
-    transition: all 0.4s ease;
-}
-
-.profile-img:hover {
-    transform: scale(1.05) rotate(5deg);
-    border-color: #fff;
+    margin-bottom: 3rem;
+    padding: 2rem;
+    border: 1px solid var(--terminal-border);
+    border-radius: 8px;
+    box-shadow: 0 0 20px var(--terminal-shadow);
 }
 
 .profile h1 {
-    font-size: 2.2rem;
-    margin: 1rem 0;
-    color: #fff;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+    font-size: 1.8rem;
+    margin: 0.5rem 0;
+    color: var(--accent-color);
+    text-shadow: 0 0 5px #33ff33;
+    animation: blinkText 1s infinite alternate;
+    font-weight: 700;
     letter-spacing: 1px;
 }
 
 .profile p {
-    font-size: 1.2rem;
-    margin: 0.5rem 0;
-    color: #fff;
-    opacity: 0.95;
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.1);
+    font-size: 1rem;
+    opacity: 1;
+    line-height: 1.6;
+    margin: 1rem 0;
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
 }
 
+/* Container de links */
 .links {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    margin: 2rem 0;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
 }
 
+/* Estilos dos cards de link */
 .link-card {
     display: flex;
-    align-items: center;
-    padding: 1.2rem;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    text-decoration: none;
-    color: #fff;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 2px solid #0f0 !important;
+    border-radius: 8px;
     transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-decoration: none;
+    color: var(--text-color);
+    font-family: var(--font-code);
+    background: transparent;
+    box-shadow: 0 0 5px #0f0, 0 0 15px #0f0, 0 0 30px #0f0;
+    position: relative;
+    overflow: hidden;
 }
 
 .link-card:hover {
-    transform: translateY(-5px);
-    background: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
+    transform: scale(1.03);
+    box-shadow: 0 0 10px #0f0, 0 0 25px #0f0, 0 0 40px #0f0;
 }
 
 .link-card i {
-    font-size: 1.6rem;
-    margin-right: 1.2rem;
-    width: 32px;
-    text-align: center;
+    display: none;
 }
 
 .link-card span {
-    font-size: 1.15rem;
-    font-weight: 500;
-    letter-spacing: 0.5px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 0.1rem;
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
 }
 
 .link-card p {
-    margin-left: auto;
-    font-size: 0.9rem;
-    opacity: 0.8;
+    font-size: 0.8rem;
+    opacity: 1;
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
 }
 
-.instagram:hover {
-    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-    border-color: transparent;
-}
+/* Cores específicas para cada rede social */
+.link-card.instagram:hover { background: rgba(225, 48, 108, 0.2); }
+.link-card.twitter:hover   { background: rgba(29, 155, 240, 0.2); }
+.link-card.linkedin:hover  { background: rgba(10, 102, 194, 0.2); }
+.link-card.github:hover    { background: rgba(255, 255, 255, 0.1); }
 
-.twitter:hover {
-    background: #1DA1F2;
-    border-color: transparent;
-}
-
-.linkedin:hover {
-    background: #0077B5;
-    border-color: transparent;
-}
-
-.github:hover {
-    background: #333;
-    border-color: transparent;
-}
-
-.portfolio:hover {
-    background: linear-gradient(45deg, #0099FF 0%, #0033FF 100%);
-    border-color: transparent;
-}
-
+/* Estilos do rodapé */
 footer {
+    text-align: center;
+    padding: 2rem;
     margin-top: 3rem;
-    font-size: 0.95rem;
-    color: #fff;
-    opacity: 0.9;
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.1);
+    border-top: 1px solid var(--terminal-border);
+}
+
+footer p {
+    color: var(--terminal-text);
+}
+
+/* Botão de alternar tema */
+#theme-toggle {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    background: transparent;
+    border: 1px solid var(--terminal-border);
+    color: var(--terminal-text);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#theme-toggle:hover {
+    background: var(--terminal-hover);
+    color: var(--terminal-hover-text);
+}
+
+/* Efeito de sobreposição do fundo */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.3) 0%,
+        rgba(0, 0, 0, 0.4) 50%,
+        rgba(0, 0, 0, 0.3) 100%
+    );
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Estilos do canvas */
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+
+/* Notificação de atualização */
+.update-notification {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--terminal-bg);
+    border: 1px solid var(--terminal-border);
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 0 20px var(--terminal-shadow);
+    z-index: 1000;
+    animation: slideIn 0.3s ease;
+    color: var(--terminal-text);
+}
+
+.update-notification.fade-out {
+    animation: fadeOut 0.5s ease forwards;
+}
+
+/* Tags de código flutuantes */
+.code-float {
+    position: fixed;
+    font-size: 14px;
+    color: rgba(0, 255, 0, 0.3);
+    font-family: 'Courier New', monospace;
+    pointer-events: none;
+    animation: float-code 12s linear infinite;
+    z-index: -1;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 /* Animações */
-.fade-in {
-    animation: fadeIn 0.6s ease forwards;
+@keyframes blinkText {
+    from { opacity: 1; }
+    to { opacity: 0.8; }
 }
 
-@keyframes fadeIn {
+@keyframes slideIn {
     from {
+        transform: translateX(100%);
         opacity: 0;
-        transform: translateY(20px);
     }
-
     to {
+        transform: translateX(0);
         opacity: 1;
-        transform: translateY(0);
     }
 }
 
-.clicked {
-    animation: clickEffect 0.3s ease;
-}
-
-@keyframes clickEffect {
-    0% {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(0.95);
-    }
-
-    100% {
-        transform: scale(1);
-    }
-}
-
-.ripple {
-    position: absolute;
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    pointer-events: none;
-    width: 100px;
-    height: 100px;
-    animation: ripple 0.6s linear;
-    transform: translate(-50%, -50%);
-}
-
-@keyframes ripple {
+@keyframes fadeOut {
     from {
-        width: 0;
-        height: 0;
-        opacity: 0.5;
+        opacity: 1;
     }
-
     to {
-        width: 500px;
-        height: 500px;
         opacity: 0;
     }
 }
 
-@media (max-width: 600px) {
+@keyframes float-code {
+    0% {
+        transform: translateY(100vh) translateX(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.3;
+    }
+    90% {
+        opacity: 0.3;
+    }
+    100% {
+        transform: translateY(-100px) translateX(100px);
+        opacity: 0;
+    }
+}
+
+@keyframes glitch {
+    0% {
+        transform: translate(0);
+    }
+    20% {
+        transform: translate(-2px, 2px);
+    }
+    40% {
+        transform: translate(-2px, -2px);
+    }
+    60% {
+        transform: translate(2px, 2px);
+    }
+    80% {
+        transform: translate(2px, -2px);
+    }
+    100% {
+        transform: translate(0);
+    }
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
     .container {
         padding: 1rem;
     }
-
+    
     .profile h1 {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
     }
-
-    .profile p {
-        font-size: 1rem;
-    }
-
+    
     .link-card {
         padding: 1rem;
     }
 }
+
+/* Acessibilidade */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+} 
